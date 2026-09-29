@@ -1,0 +1,16 @@
+# Local CI output is kept outside the repository by default.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.ci-venv/
+.env
+.env.*
+!.env.example
+
+# Local evidence and generated product fixtures must not enter the policy repo.
+evidence/
+reports/
+fixtures/

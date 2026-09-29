@@ -1,0 +1,3 @@
+source: local-bootstrap
+version: 0.1.0
+content: generic-shared-ci-policy

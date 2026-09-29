@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "root_only_policy": true,
+  "minimum_quality_passed_single_measurements": 3,
+  "minimum_single_median_tokens": 20000,
+  "minimum_expected_savings_ratio": 0.25,
+  "minimum_measured_savings_ratio_after_split": 0.15
+}

@@ -1,0 +1,30 @@
+name: pre-merge
+
+on:
+  workflow_dispatch:
+    inputs:
+      local_ci_passed:
+        description: "最終コミットでローカルCIが成功済み"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: ローカルCI成功フラグを確認する
+        run: test "${{ inputs.local_ci_passed }}" = true
+      - name: 共有CIポリシーを検査する
+        run: python3 scripts/policy_verify.py
+      - name: 製品CIが設定されている場合だけ実行する
+        run: |
+          if grep -Eq '^  full_ci: [^n].*' .agent-ci-policy.yml; then
+            echo "製品CIコマンドは設定済みです。専用runnerへ接続してください。"
+          else
+            echo "製品CI未設定: ポリシー検査のみ完了しました。"
+          fi

@@ -1,0 +1,25 @@
+schema_version: 1
+policy_version: 0.1.0
+
+project:
+  name: localCI
+  base_branch: main
+  integration_prefix: integration/
+  feature_prefix: feature/
+
+# 空の導入直後は null のままにする。製品コード追加後にコマンドを設定する。
+commands:
+  install: null
+  test: null
+  typecheck: null
+  build: null
+  full_ci: null
+
+github:
+  enabled: false
+  workflow_mode: manual
+  timeout_minutes: 15
+
+storage:
+  log_retention_days: 7
+  result_cache_days: 7

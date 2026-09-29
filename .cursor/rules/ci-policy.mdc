@@ -1,0 +1,6 @@
+---
+description: Shared CI policy
+alwaysApply: true
+---
+
+Run local CI through `scripts/run_ci_local_quiet.sh`. Do not duplicate, poll, or rerun an in-flight CI. Treat exit 75 as a follower result, not as CI success. Keep long logs out of the conversation. Do not claim product tests passed while `.agent-ci-policy.yml` has null commands.
