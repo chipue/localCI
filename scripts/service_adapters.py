@@ -144,13 +144,13 @@ class DockerAdapter(ServiceAdapter):
                        check=True, stdout=subprocess.DEVNULL)
         self.started = True
 
-    def wait_ready(self, timeout: float = 30) -> None:
+    def wait_ready(self, timeout: float = 90) -> None:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             if self.spec.kind == "redis":
                 command = ["redis-cli", "-h", "127.0.0.1", "-p", "6379", "PING"]
             elif self.spec.kind == "mysql":
-                command = ["mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-plocalci"]
+                command = ["mysqladmin", "ping", "--protocol=socket", "-uroot", "-plocalci"]
             else:
                 command = ["pg_isready", "-h", "127.0.0.1", "-p", "5432"]
             if subprocess.run(["docker", "exec", self.container, *command],
