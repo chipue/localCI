@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "host": "127.0.0.1",
+  "port": 5432,
+  "database": "product_test",
+  "user": "product_test",
+  "query": "SELECT 1",
+  "password_env": "PGPASSWORD"
+}

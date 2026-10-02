@@ -1,0 +1,24 @@
+{
+  "packages": [
+    "sharp",
+    "google-auth-library"
+  ],
+  "env": [
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    "BRAVE_API_KEY"
+  ],
+  "http": [
+    {
+      "url": "https://api.example.invalid/quota",
+      "expect_status": 200,
+      "timeout_ms": 5000,
+      "json_paths": [
+        {
+          "path": "brave_monthly_quota_202609.used",
+          "not_null": true,
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

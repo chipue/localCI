@@ -1,0 +1,17 @@
+schema_version: 1
+policy_version: 0.1.0
+
+project:
+  name: your-project
+  base_branch: main
+  integration_prefix: integration/
+  feature_prefix: feature/
+
+github:
+  enabled: false
+  workflow_mode: manual
+  timeout_minutes: 15
+
+storage:
+  log_retention_days: 7
+  result_cache_days: 7
