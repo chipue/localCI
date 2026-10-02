@@ -20,6 +20,14 @@ github:
   workflow_mode: manual
   timeout_minutes: 15
 
+delivery:
+  profile: delivery
+  nightly_cron: "17 2 * * *"
+  load_test_pushes: 300
+  load_test_window_hours: 24
+  runner_cost_per_minute: 0.008
+  local_detection_rate: 0.9
+
 storage:
   log_retention_days: 7
   result_cache_days: 7
