@@ -37,6 +37,7 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin main
           git branch main FETCH_HEAD
+          git switch -c ci-head
       - name: 手動起動時のローカルCI成功フラグを確認する
         if: github.event_name == 'workflow_dispatch'
         env:
