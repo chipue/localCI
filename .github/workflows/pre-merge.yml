@@ -33,10 +33,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - name: main refを用意する
         run: |
-          git fetch --no-tags --depth=1 origin main
-          git branch main FETCH_HEAD
+          git fetch --no-tags origin main
+          git branch main "$(git merge-base HEAD FETCH_HEAD)"
           git switch -c ci-head
       - name: 手動起動時のローカルCI成功フラグを確認する
         if: github.event_name == 'workflow_dispatch'
