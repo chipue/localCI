@@ -1426,7 +1426,9 @@ class PolicyBootstrapTests(unittest.TestCase):
             self.assertEqual(plan_payload["selected"], [])
             self.assertEqual(plan_payload["blocked"][0]["name"], "windows-package")
             self.assertIn("backend runtime=windows", plan_payload["blocked"][0]["missing"])
-            self.assertIn("tool=powershell", plan_payload["blocked"][0]["missing"])
+            # A non-Windows runner may still have PowerShell installed. The
+            # Windows backend must remain blocked until the native runtime is
+            # available, regardless of that optional tool.
 
             run = subprocess.run(
                 ["bash", "localci", "run", "--backend", "windows", "--json",
