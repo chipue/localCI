@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Compatibility entry for checkouts that previously configured core.hooksPath
+# to .githooks. New installations use .localci/hooks via `localci hooks install`.
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "$ROOT_DIR/.localci/hooks/pre-push" "$@"

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "security": {
+    "env_allowlist": ["NPM_CONFIG_REGISTRY"],
+    "secret_env": ["NPM_TOKEN"],
+    "secret_log_policy": "redact"
+  },
+  "commands": [
+    {
+      "name": "policy-tests",
+      "stage": "test",
+      "command": "python3 -m unittest discover -s eval -p 'test_*.py'",
+      "requirements": {
+        "os": ["linux", "macos", "windows"],
+        "docker": false,
+        "services": [],
+        "tools": ["python3"]
+      },
+      "paths": ["scripts/**", "eval/**", ".agent-ci-policy.yml", ".github/**", "docs/**"],
+      "always": true,
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 300
+    },
+    {
+      "name": "workflow-act-check",
+      "stage": "custom",
+      "command": "act workflow_dispatch --bind --container-architecture \"${LOCALCI_ACT_ARCH:-linux/amd64}\" --pull=false --container-daemon-socket \"${LOCALCI_ACT_DAEMON_SOCKET:--}\" -P ubuntu-latest=\"${LOCALCI_ACT_IMAGE:-catthehacker/ubuntu:act-24.04}\"",
+      "requirements": {
+        "os": ["linux", "macos", "windows"],
+        "docker": true,
+        "services": ["docker"],
+        "tools": ["act", "docker"]
+      },
+      "paths": [".github/**", ".localci/**"],
+      "profiles": ["full"],
+      "timeout_seconds": 900
+    },
+    {
+      "name": "windows-package",
+      "stage": "build",
+      "command": "powershell -File packaging.ps1",
+      "requirements": {
+        "os": ["windows"],
+        "docker": false,
+        "services": [],
+        "tools": ["powershell"]
+      },
+      "paths": ["packaging/**", "**/*.ps1"],
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 600
+    }
+  ]
+}

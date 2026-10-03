@@ -1,0 +1,5 @@
+{
+  "integration/example": "main",
+  "feature/example/router": "integration/example",
+  "feature/example/router/graph": "feature/example/router"
+}

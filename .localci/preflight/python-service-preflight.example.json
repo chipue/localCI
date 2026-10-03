@@ -1,0 +1,22 @@
+{
+  "packages": [
+    "requests",
+    "google.auth"
+  ],
+  "env": [
+    "GOOGLE_APPLICATION_CREDENTIALS"
+  ],
+  "http": [
+    {
+      "url": "https://api.example.invalid/quota",
+      "expect_status": 200,
+      "json_paths": [
+        {
+          "path": "quota.used",
+          "not_null": true,
+          "type": "int"
+        }
+      ]
+    }
+  ]
+}

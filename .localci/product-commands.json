@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "commands": [
+    {
+      "name": "install",
+      "stage": "install",
+      "command": "python3 -m compileall -q scripts eval",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "paths": ["scripts/**", "eval/**"],
+      "always": true,
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "test",
+      "stage": "test",
+      "command": "python3 -m unittest discover -s eval -p 'test_*.py'",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "paths": ["scripts/**", "eval/**"],
+      "always": true,
+      "depends_on": ["install"],
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "typecheck",
+      "stage": "typecheck",
+      "command": "python3 -m py_compile scripts/*.py eval/*.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "paths": ["scripts/**", "eval/**"],
+      "always": true,
+      "depends_on": ["install"],
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "build",
+      "stage": "build",
+      "command": "python3 -m compileall -q scripts eval",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["test", "typecheck"],
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "lint",
+      "stage": "quality",
+      "command": "python3 scripts/lint_product.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["install"],
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "format_check",
+      "stage": "quality",
+      "command": "python3 scripts/format_check.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["install"],
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "security",
+      "stage": "security",
+      "command": "python3 scripts/security_scan.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["install"],
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "package",
+      "stage": "package",
+      "command": "python3 scripts/package_product.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["build"],
+      "profiles": ["full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "coverage",
+      "stage": "coverage",
+      "command": "python3 scripts/coverage_check.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["test"],
+      "profiles": ["full"],
+      "timeout_seconds": 900,
+      "retryable": true
+    },
+    {
+      "name": "integration_test",
+      "stage": "integration_test",
+      "command": "python3 scripts/integration_check.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["test"],
+      "profiles": ["full"],
+      "timeout_seconds": 900,
+      "retryable": true
+    },
+    {
+      "name": "smoke_test",
+      "stage": "smoke_test",
+      "command": "python3 scripts/smoke_check.py",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["install"],
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 300,
+      "retryable": true
+    },
+    {
+      "name": "full_ci",
+      "stage": "full_ci",
+      "command": "python3 scripts/policy_verify.py && python3 -m unittest discover -s eval -p 'test_*.py'",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["build", "package", "coverage", "integration_test", "smoke_test"],
+      "profiles": ["full"],
+      "timeout_seconds": 600,
+      "retryable": true
+    },
+    {
+      "name": "workflow-act-check",
+      "stage": "custom",
+      "command": "act workflow_dispatch --bind --container-architecture \"${LOCALCI_ACT_ARCH:-linux/amd64}\" --pull=false --container-daemon-socket \"${LOCALCI_ACT_DAEMON_SOCKET:--}\" -P ubuntu-latest=\"${LOCALCI_ACT_IMAGE:-catthehacker/ubuntu:act-24.04}\"",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": true, "services": ["docker"], "tools": ["act", "docker"]},
+      "paths": [".github/**", ".localci/**"],
+      "profiles": ["full"],
+      "timeout_seconds": 900,
+      "retryable": false
+    },
+    {
+      "name": "windows-package",
+      "stage": "build",
+      "command": "powershell -File packaging.ps1",
+      "requirements": {"os": ["windows"], "docker": false, "services": [], "tools": ["powershell"]},
+      "paths": ["packaging/**", "**/*.ps1"],
+      "profiles": ["standard", "full"],
+      "timeout_seconds": 600,
+      "retryable": false
+    },
+    {
+      "name": "delivery-profile",
+      "stage": "custom",
+      "command": "python3 scripts/delivery_profile.py --event \"${LOCALCI_DELIVERY_EVENT:-push}\" --json",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "paths": ["scripts/**", ".localci/**", ".github/**", "WORKFLOW.md"],
+      "always": true,
+      "profiles": ["delivery"],
+      "timeout_seconds": 1800,
+      "retryable": false
+    }
+  ]
+}

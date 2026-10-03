@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "commands": [
+    {
+      "name": "sample-install",
+      "stage": "install",
+      "command": "python3 examples/sample-product/tools/product_stage.py install",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 60,
+      "retryable": true
+    },
+    {
+      "name": "sample-test",
+      "stage": "test",
+      "command": "python3 examples/sample-product/tools/product_stage.py test",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["sample-install"],
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 60,
+      "retryable": true
+    },
+    {
+      "name": "sample-typecheck",
+      "stage": "typecheck",
+      "command": "python3 examples/sample-product/tools/product_stage.py typecheck",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["sample-test"],
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 60,
+      "retryable": true
+    },
+    {
+      "name": "sample-build",
+      "stage": "build",
+      "command": "python3 examples/sample-product/tools/product_stage.py build",
+      "requirements": {"os": ["linux", "macos", "windows"], "docker": false, "services": [], "tools": ["python3"]},
+      "always": true,
+      "depends_on": ["sample-typecheck"],
+      "profiles": ["quick", "standard", "full"],
+      "timeout_seconds": 60,
+      "retryable": true
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ "${1:-}" = "plan" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_plan.py" "$@"
+fi
+if [ "${1:-}" = "gate" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/plan_gate.py" "$@"
+fi
+if [ "${1:-}" = "execute" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/local_executor.py" "$@"
+fi
+if [ "${1:-}" = "cancel" ] || [ "${1:-}" = "status" ]; then
+  ACTION="$1"
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_control.py" "$ACTION" "$@"
+fi
+if [ "${1:-}" = "run" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_run.py" "$@"
+fi
+if [ "${1:-}" = "start" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_start.py" "$@"
+fi
+if [ "${1:-}" = "retry" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_retry.py" "$@"
+fi
+if [ "${1:-}" = "cache" ] && [ "${2:-}" = "clear" ]; then
+  shift 2
+  exec python3 "$ROOT_DIR/scripts/localci_cache.py" clear "$@"
+fi
+if [ "${1:-}" = "graph" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_graph.py" "$@"
+fi
+if [ "${1:-}" = "matrix" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_matrix.py" "$@"
+fi
+if [ "${1:-}" = "mode" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_mode.py" "$@"
+fi
+if [ "${1:-}" = "history" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/ci_history_store.py" "$@"
+fi
+if [ "${1:-}" = "worktree" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_worktree.py" "$@"
+fi
+if [ "${1:-}" = "preflight" ] && [ "${2:-}" = "init" ]; then
+  shift 2
+  exec python3 "$ROOT_DIR/scripts/localci_preflight.py" "$@"
+fi
+if [ "${1:-}" = "preflight" ] && [ "${2:-}" = "doctor" ]; then
+  shift 2
+  exec python3 "$ROOT_DIR/scripts/localci_preflight_doctor.py" "$@"
+fi
+if [ "${1:-}" = "service" ] && [ "${2:-}" = "integration" ]; then
+  shift 2
+  exec python3 "$ROOT_DIR/scripts/service_integration_check.py" "$@"
+fi
+if [ "${1:-}" = "doctor" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/localci_doctor.py" "$@"
+fi
+if [ "${1:-}" = "hooks" ] && [ "${2:-}" = "install" ]; then
+  exec bash "$ROOT_DIR/scripts/install_local_hooks.sh"
+fi
+if [ "${1:-}" = "merge-check" ]; then
+  shift
+  exec python3 "$ROOT_DIR/scripts/run_ci_scoped.py" "$@"
+fi
+if [ "${1:-}" = "branch" ] && [ "${2:-}" = "register" ]; then
+  shift 2
+  exec python3 "$ROOT_DIR/scripts/branch_register.py" "$@"
+fi
+cat >&2 <<'USAGE'
+usage:
+  localci plan [--profile quick|standard|full|delivery] [--backend host|docker|act|wsl|windows] [--diff]
+  localci gate PLAN.json
+  localci execute PLAN.json [--root PATH] [--log-dir PATH] [--json]
+  localci cancel RUN_ID [--json]
+  localci status RUN_ID [--json]
+  localci run [--profile quick|standard|full|delivery] [--backend auto|host|docker|act|wsl|windows] [--diff] [--log-dir PATH] [--result-file PATH] [--report-json PATH] [--report-html PATH] [--no-cache] [--invalidate-cache] [--json]
+  localci start [--mode auto|lightweight|integration] [--backend auto|host|docker|act|wsl|windows] [--dry-run] [--json]
+  localci retry RESULT.json [--root PATH] [--log-dir PATH] [--report-json PATH] [--report-html PATH] [--json]
+  localci cache clear [--root PATH] [--key KEY]
+  localci graph RESULT.json [--json|--mermaid]
+  localci matrix [--profile quick|standard|full|delivery] [--json]
+  localci mode [--root PATH] [--base REF] [--branch BRANCH] [--changed-file PATH] [--json]
+  localci history [--backend host|docker|act|wsl|windows] [--status STATUS] [--kind run|retry|worktree_promote|worktree_retire|postgres_integration] [--summary] [--json]
+  localci worktree status|list|retire|promote [--root PATH] [--history-file PATH] [--registry PATH] [--json]
+  localci preflight init --kind node|python|http|postgres [--root PATH] [--manifest PATH] [--command NAME] [--force] [--json]
+  localci preflight doctor [--root PATH] [--kind node|python|http|postgres] [--config PATH] [--timeout SECONDS] [--watch] [--interval SECONDS] [--iterations N|--duration SECONDS] [--json]
+  localci service integration --kind http|postgres|redis|mysql [--provider auto|host|docker] [--json]
+  localci doctor [--root PATH] [--manifest PATH] [--history-file PATH] [--min-free-gb N] [--all] [--json]
+  localci hooks install
+  localci merge-check [--base PARENT] [--profile standard|full] [--backend auto|host|docker|act|wsl|windows]
+  localci branch register --parent PARENT [--branch CHILD]
+USAGE
+exit 2
