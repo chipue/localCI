@@ -16,8 +16,8 @@ commands:
   full_ci: null
 
 github:
-  enabled: false
-  workflow_mode: manual
+  enabled: true
+  workflow_mode: pull_request
   timeout_minutes: 15
 
 delivery:

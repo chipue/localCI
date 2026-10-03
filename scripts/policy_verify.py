@@ -73,17 +73,16 @@ def main() -> int:
     if not re.search(r"^schema_version:\s*1\s*$", config, re.MULTILINE):
         print("invalid schema_version", file=sys.stderr)
         return 2
-    if not re.search(r"^  enabled:\s*false\s*$", config, re.MULTILINE):
-        print("github.enabled must remain false until GitHub is configured", file=sys.stderr)
+    if not re.search(r"^  enabled:\s*true\s*$", config, re.MULTILINE):
+        print("github.enabled must be true when the shared status check is enabled", file=sys.stderr)
         return 2
     workflow = (ROOT / ".github/workflows/pre-merge.yml").read_text(encoding="utf-8")
-    if "workflow_dispatch:" not in workflow or "pull_request:" in workflow or "push:" in workflow:
-        print("workflow must be manual-only during bootstrap", file=sys.stderr)
+    if "workflow_dispatch:" not in workflow or "pull_request:" not in workflow or "push:" in workflow:
+        print("workflow must run on pull requests and remain push-disabled", file=sys.stderr)
         return 2
-    for required_input in ("local_ci_passed", "merge_authorized", "source_branch", "target_branch"):
-        if required_input not in workflow:
-            print(f"pre-merge workflow is missing required input: {required_input}", file=sys.stderr)
-            return 2
+    if "shared-ci:" not in workflow:
+        print("pre-merge workflow is missing the shared-ci status job", file=sys.stderr)
+        return 2
     print("policy checks passed")
     print("product checks: delegated to localci run")
     return 0
