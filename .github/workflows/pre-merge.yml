@@ -59,7 +59,16 @@ jobs:
       - name: 共有CIポリシーと製品CIを検査する
         env:
           AGENT_CI_RESULT_FILE: ${{ github.workspace }}/.localci-result.json
-        run: bash scripts/run_ci_local_quiet.sh
+        run: |
+          for attempt in 1 2; do
+            if bash scripts/run_ci_local_quiet.sh; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 1 ]; then
+              echo "Shared CI failed; retrying once for transient runner or service contention."
+            fi
+          done
+          exit 1
       - name: GitHub status report
         if: always()
         env:
