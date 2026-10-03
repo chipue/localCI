@@ -1,6 +1,10 @@
 name: pre-merge
 
 on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       local_ci_passed:
@@ -24,18 +28,18 @@ permissions:
   contents: read
 
 jobs:
-  policy:
+  shared-ci:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    env:
-      AGENT_CI_RESULT_FILE: ${{ runner.temp }}/localci-result.json
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: ローカルCI成功フラグを確認する
+      - name: 手動起動時のローカルCI成功フラグを確認する
+        if: github.event_name == 'workflow_dispatch'
         env:
           LOCAL_CI_PASSED: ${{ inputs.local_ci_passed }}
         run: test "$LOCAL_CI_PASSED" = true
-      - name: main統合前の実行条件を確認する
+      - name: 手動起動時のmain統合条件を確認する
+        if: github.event_name == 'workflow_dispatch'
         env:
           MERGE_AUTHORIZED: ${{ inputs.merge_authorized }}
           SOURCE_BRANCH: ${{ inputs.source_branch }}
@@ -44,7 +48,8 @@ jobs:
           test "$MERGE_AUTHORIZED" = true
           test "$TARGET_BRANCH" = main
           test "$SOURCE_BRANCH" != main
-      - name: release PR gateを記録する
+      - name: 手動起動時のrelease PR gateを記録する
+        if: github.event_name == 'workflow_dispatch'
         env:
           LOCAL_CI_PASSED: ${{ inputs.local_ci_passed }}
           MERGE_AUTHORIZED: ${{ inputs.merge_authorized }}
@@ -52,9 +57,13 @@ jobs:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: python3 scripts/release_pr_gate.py --json --output "${{ runner.temp }}/release-gate.json"
       - name: 共有CIポリシーと製品CIを検査する
-        run: bash scripts/ci_local.sh
+        env:
+          AGENT_CI_RESULT_FILE: ${{ github.workspace }}/.localci-result.json
+        run: bash scripts/run_ci_local_quiet.sh
       - name: GitHub status report
         if: always()
+        env:
+          AGENT_CI_RESULT_FILE: ${{ github.workspace }}/.localci-result.json
         run: |
           test -f "$AGENT_CI_RESULT_FILE"
           python3 scripts/github_status_report.py --input "$AGENT_CI_RESULT_FILE" --output "${{ runner.temp }}/github-status.json"

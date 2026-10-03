@@ -62,4 +62,4 @@ python3 scripts/validate_command_manifest.py .localci/sample-product-commands.js
 ./localci run --profile standard --backend host --inventory .localci/sample-product-commands.json
 ```
 
-macOS/Linuxは `scripts/run_ci_local_quiet.sh`、Windowsは `scripts/run_ci_local_quiet.ps1` を入口とする。hookは `./localci hooks install` で `.localci/hooks` に設定する。GitHub Actionsはworkflow_dispatchのみとし、main統合の明示指示、ローカルCI成功、main宛て・main以外を条件にする。通常のfeature/integration pushでは起動しない。
+macOS/Linuxは `scripts/run_ci_local_quiet.sh`、Windowsは `scripts/run_ci_local_quiet.ps1` を入口とする。hookは `./localci hooks install` で `.localci/hooks` に設定する。GitHub Actionsはmain宛てPull Requestとworkflow_dispatchで起動し、`shared-ci`をmain保護の必須status checkにする。通常のfeature/integration pushでは起動しない。

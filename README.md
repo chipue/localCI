@@ -266,9 +266,9 @@ commands:
 
 ## GitHubとの受け渡し
 
-ローカルCIが成功したコミットをfeatureまたはintegrationブランチへ進めます。関連作業がまとまり、ユーザーがmain統合を明示的に指示した場合だけ、`scripts/run_pre_merge.sh`を入口にGitHub Actionsを1回実行します。
+ローカルCIが成功したコミットをfeatureまたはintegrationブランチへ進めます。main宛てPull Requestでは`shared-ci` status checkが共有CI入口を実行し、手動の最終確認が必要な場合はユーザーの明示指示のもと`scripts/run_pre_merge.sh`を入口にworkflow_dispatchを1回実行します。
 
-GitHub連携を有効にする場合は、`.agent-ci-policy.yml`の`github.enabled`を変更し、workflow内のActionをcommit SHAで固定してください。`main`は保護し、直接pushではなくPull Requestからのみ更新できるようにします。
+GitHub連携では`.agent-ci-policy.yml`の`github.enabled`を有効にし、workflow内のActionをcommit SHAで固定しています。`main`は保護し、直接pushではなくPull Requestからのみ更新できるようにします。
 
 ## delivery profile
 
@@ -428,9 +428,8 @@ PythonとHTTPは標準ライブラリのみ、PostgreSQLは`pg_isready`と`psql`
 
 ## GitHubを追加するとき
 
-1. `.agent-ci-policy.yml` の `github.enabled` を `true` にする
-2. `scripts/run_pre_merge.sh` にPR検査を接続する
-3. `pre-merge.yml` のActionを確認済みcommit SHAへ固定する
-4. GitHub側でmainへの直接pushを禁止し、最終検査を必須にする
+1. `pre-merge.yml` のActionを確認済みcommit SHAへ固定する
+2. GitHub側でmainへの直接pushを禁止する
+3. `shared-ci` status checkをmain保護の必須検査に登録する
 
 ポリシー検査、評価テスト、利用側のローカルCIが成功した状態で、更新をPull Requestへ提出します。
